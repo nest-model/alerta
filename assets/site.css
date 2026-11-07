@@ -1,0 +1,31 @@
+@import url("fonts/fonts.css");
+:root {
+  --night: #15111c; --surface: #201a29; --surface2: #2a2234; --line: #342b40;
+  --text: #f3eef7; --muted: #a69bb3; --red: #ef3b2d; --red2: #c9271c; --gold: #f5c542; --ok: #4ade80;
+  --display: "Unbounded", "Manrope", system-ui, sans-serif; --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --r: 14px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--night); color: var(--text); font: 500 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+img, video { max-width: 100%; display: block; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+.wrap { width: min(1160px, 100% - 40px); margin: 0 auto; }
+
+.logo { display: inline-flex; align-items: center; gap: 10px; font: 800 19px/1 var(--display); letter-spacing: -.02em; text-decoration: none; }
+.tile { width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center;
+  background: linear-gradient(160deg, #ff6a4d, var(--red) 55%, #b91c1c); box-shadow: 0 6px 18px rgba(239,59,45,.35); }
+.tile svg { width: 58%; height: 58%; }
+
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 22px; border-radius: 12px; font: 800 16px/1 var(--body);
+  text-decoration: none; border: 1px solid transparent; cursor: pointer; transition: transform .15s, background .15s, border-color .15s; }
+.btn:active { transform: translateY(1px); }
+.btn svg { width: 20px; height: 20px; flex: none; }
+.btn-red { background: var(--red); color: #fff; box-shadow: 0 10px 30px -8px rgba(239,59,45,.6); }
+.btn-red:hover { background: #ff4a3b; }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--muted); }
+.money { color: var(--gold); font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.faq p a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }

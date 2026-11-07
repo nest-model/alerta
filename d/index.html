@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Донат стримеру — Alerta</title>
+<meta name="description" content="Поддержи стримера переводом на Kaspi. Твоё сообщение зачитают на стриме.">
+<meta name="theme-color" content="#15111c">
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+:root { --acc: var(--gold); }
+body { min-height: 100vh; background:
+  radial-gradient(90% 45% at 50% -8%, color-mix(in srgb, var(--acc) 22%, transparent), transparent 70%), var(--night); }
+.page { width: min(560px, 100% - 32px); margin: 0 auto; padding: 18px 0 40px; }
+.bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+.bar .logo { font-size: 15px; } .bar .tile { width: 26px; height: 26px; border-radius: 8px; }
+.bar a.small { color: var(--muted); font-size: 13.5px; font-weight: 700; text-decoration: none; }
+
+.who { display: flex; gap: 16px; align-items: center; }
+.ava { width: 76px; height: 76px; border-radius: 22px; flex: none; display: grid; place-items: center; font: 800 32px/1 var(--display); color: #1a1406;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--acc) 70%, #fff), var(--acc)); box-shadow: 0 14px 34px -10px color-mix(in srgb, var(--acc) 70%, transparent); }
+.who h1 { font: 800 clamp(24px, 6.4vw, 32px)/1.1 var(--display); letter-spacing: -.03em; margin: 0; overflow-wrap: anywhere; }
+.who .tt { color: var(--muted); font-weight: 700; font-size: 14.5px; text-decoration: none; display: inline-block; margin-top: 6px; }
+.livepill { display: inline-flex; align-items: center; gap: 7px; margin-top: 8px; padding: 5px 10px; border-radius: 999px; font-weight: 800; font-size: 12.5px; background: rgba(239,59,45,.16); color: #ff7b70; }
+.livepill i { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1.4s infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
+.about { margin: 18px 0 0; color: #d9d0e2; font-size: 16px; }
+
+.pay { margin-top: 26px; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 22px; }
+.pay .lbl { color: var(--muted); font-weight: 700; font-size: 14px; }
+.num { font: 800 clamp(25px, 7.8vw, 36px)/1.15 var(--display); letter-spacing: -.02em; margin: 8px 0 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.recv { color: var(--muted); font-size: 14.5px; margin-bottom: 18px; }
+.recv b { color: var(--text); }
+.copy { width: 100%; justify-content: center; padding: 17px; font-size: 17px; }
+.copy.done { background: var(--ok); color: #06210f; box-shadow: none; }
+.alt { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.alt .t { flex: 1; min-width: 0; } .alt .t b { display: block; font: 700 17px/1.3 var(--body); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.alt .t span { color: var(--muted); font-size: 13.5px; }
+.alt .btn { padding: 11px 14px; font-size: 14px; }
+
+.how { margin: 26px 0 0; padding: 0; list-style: none; counter-reset: h; }
+.how li { counter-increment: h; display: grid; grid-template-columns: 30px 1fr; gap: 12px; padding: 9px 0; font-size: 15.5px; }
+.how li::before { content: counter(h); width: 30px; height: 30px; border-radius: 9px; background: var(--surface2); color: var(--acc); display: grid; place-items: center; font: 800 13px/1 var(--display); }
+.how b { color: var(--text); } .how b.money { color: var(--gold); }
+.note { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: var(--surface); font-size: 14.5px; color: #d9d0e2; }
+
+h2 { font: 800 18px/1.2 var(--display); letter-spacing: -.02em; margin: 34px 0 14px; }
+.goal .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 700; }
+.goal .row span:last-child { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.track { height: 14px; border-radius: 8px; background: var(--surface2); margin-top: 10px; overflow: hidden; }
+.track i { display: block; height: 100%; border-radius: 8px; width: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--acc) 70%, #fff), var(--acc)); transition: width 1s cubic-bezier(.2,.8,.2,1); }
+.list { list-style: none; padding: 0; margin: 0; }
+.list li { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+.list li:last-child { border-bottom: 0; }
+.list .p { width: 26px; text-align: center; font: 800 14px/1 var(--display); color: var(--muted); }
+.list li:first-child .p { color: var(--acc); }
+.list .n { flex: 1; min-width: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list .a { font-weight: 800; }
+.list .w { color: var(--muted); font-size: 13px; width: 70px; text-align: right; }
+.made { margin-top: 40px; padding: 18px; border-radius: 16px; border: 1px dashed var(--line); display: flex; gap: 14px; align-items: center; text-decoration: none; }
+.made b { display: block; } .made span { color: var(--muted); font-size: 14px; }
+.made .tile { width: 40px; height: 40px; border-radius: 12px; }
+.empty { text-align: center; padding: 80px 0; }
+.empty h1 { font: 800 26px/1.2 var(--display); margin: 0 0 10px; }
+.empty p { color: var(--muted); margin: 0 0 24px; }
+.sk { background: linear-gradient(90deg, var(--surface) 0, var(--surface2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: sk 1.2s infinite linear; border-radius: 12px; }
+@keyframes sk { to { background-position: -200% 0; } }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); opacity: 0; transition: .25s; background: #2d2537; padding: 11px 16px; border-radius: 12px; font-weight: 700; font-size: 14px; pointer-events: none; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="bar">
+    <a class="logo" href="../"><span class="tile"><svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="4" width="16" height="3.2" rx=".6"/><rect x="4" y="9.4" width="16" height="3.2" rx=".6"/><rect x="10.4" y="12" width="3.2" height="9" rx=".6"/></svg></span>Alerta</a>
+    <a class="small" href="../">Донаты для стримеров</a>
+  </div>
+  <div id="app">
+    <div class="who"><div class="ava sk"></div><div style="flex:1"><div class="sk" style="height:28px;width:60%"></div><div class="sk" style="height:16px;width:35%;margin-top:10px"></div></div></div>
+    <div class="sk" style="height:230px;margin-top:26px;border-radius:22px"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="../assets/config.js"></script>
+<script>
+const app = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const money = n => Number(n || 0).toLocaleString('ru-RU').replace(/ /g, ' ') + ' ₸';
+const slug = decodeURIComponent(location.search.replace(/^\?/, '').split('&')[0].replace(/^(u|s|n)=/, '')).replace(/^@/, '').toLowerCase();
+const PERIOD = { session: 'за этот стрим', today: 'за сегодня', all: 'за всё время' };
+let first = true;
+
+function toast(t) { const e = document.getElementById('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('on'), 1800); }
+function digits(s) { return String(s || '').replace(/\D/g, ''); }
+function fmtPhone(s) {
+  let d = digits(s);
+  if (d.length === 11 && /^[78]/.test(d)) d = d.slice(1);
+  if (d.length !== 10) return { show: s, copy: s };
+  return { show: `+7 ${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}`, copy: '+7' + d };
+}
+function fmtCard(s) { const d = digits(s); return { show: d.replace(/(\d{4})(?=\d)/g, '$1 '), copy: d }; }
+async function copyText(t, btn, label) {
+  try { await navigator.clipboard.writeText(t); }
+  catch (_) { const a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.append(a); a.select(); try { document.execCommand('copy'); } catch (e) {} a.remove(); }
+  if (btn) { const old = btn.innerHTML; btn.classList.add('done'); btn.textContent = label; setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = old; }, 2200); }
+  else toast(label);
+}
+function ago(ts) {
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return 'только что'; if (s < 3600) return Math.round(s / 60) + ' мин'; if (s < 86400) return Math.round(s / 3600) + ' ч';
+  return new Date(ts).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+}
+
+function notFound(t, p) {
+  document.title = 'Страница не найдена — Alerta';
+  app.innerHTML = `<div class="empty"><h1>${esc(t)}</h1><p>${esc(p)}</p><a class="btn btn-red" href="../">Что такое Alerta</a></div>`;
+}
+
+function render(d) {
+  const acc = /^#[0-9a-f]{6}$/i.test(d.accent || '') ? d.accent : '#f5c542';
+  document.documentElement.style.setProperty('--acc', acc);
+  const name = d.name || d.slug;
+  document.title = `Донат для ${name} — Alerta`;
+  const live = d.live && Date.now() - Date.parse(d.updated_at) < 15 * 60e3;
+  const ph = d.phone ? fmtPhone(d.phone) : null, cd = d.card ? fmtCard(d.card) : null;
+  const main = ph || cd;
+  const g = d.goal, top = d.top || [], rec = d.recent || [];
+  const pct = g && g.target > 0 ? Math.min(100, Math.round(g.current / g.target * 100)) : 0;
+  app.innerHTML = `
+    <div class="who">
+      <div class="ava">${esc(Array.from(name.trim())[0] || '₸').toUpperCase()}</div>
+      <div>
+        <h1>${esc(name)}</h1>
+        ${d.tiktok ? `<a class="tt" href="https://www.tiktok.com/@${encodeURIComponent(d.tiktok)}" rel="noopener">@${esc(d.tiktok)} в TikTok</a>` : ''}
+        ${live ? '<div><span class="livepill"><i></i>Сейчас в эфире</span></div>' : ''}
+      </div>
+    </div>
+    ${d.about ? `<p class="about">${esc(d.about)}</p>` : ''}
+    ${main ? `<div class="pay">
+      <div class="lbl">${ph ? 'Номер Kaspi для перевода' : 'Карта Kaspi для перевода'}</div>
+      <div class="num">${esc(main.show)}</div>
+      ${d.receiver ? `<div class="recv">Получатель: <b>${esc(d.receiver)}</b></div>` : '<div class="recv">&nbsp;</div>'}
+      <button class="btn btn-red copy" id="cpMain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>${ph ? 'Скопировать номер' : 'Скопировать карту'}</button>
+      ${ph && cd ? `<div class="alt"><div class="t"><span>или на карту</span><b>${esc(cd.show)}</b></div><button class="btn btn-ghost" id="cpCard">Копировать</button></div>` : ''}
+    </div>
+    <ol class="how">
+      <li><span>Открой Kaspi, раздел <b>Переводы</b>, и выбери перевод ${ph ? 'по номеру телефона' : 'на карту'}.</span></li>
+      <li><span>Вставь ${ph ? 'номер' : 'карту'} и укажи сумму от <b class="money">${money(d.min || 1)}</b>.</span></li>
+      <li><span>В сообщении к переводу напиши <b>своё имя и текст</b>. Его покажут и зачитают на стриме.</span></li>
+    </ol>
+    ${d.musicMin > 0 ? `<div class="note">От <b class="money">${money(d.musicMin)}</b> можно заказать музыку: вставь в сообщение ссылку на YouTube.</div>` : ''}`
+    : `<div class="pay"><div class="lbl">Стример ещё не указал реквизиты</div><div class="recv" style="margin:8px 0 0">Загляни позже или спроси в чате стрима.</div></div>`}
+    ${g ? `<h2>Цель</h2><div class="goal"><div class="row"><span>${esc(g.title)}</span><span>${money(g.current)} из ${money(g.target)}</span></div><div class="track"><i id="gBar"></i></div></div>` : ''}
+    ${top.length ? `<h2>Топ донатеров ${esc(PERIOD[d.topPeriod] || '')}</h2><ul class="list">${top.map((t, i) => `<li><span class="p">${i + 1}</span><span class="n">${esc(t.name)}</span><span class="a money">${money(t.amount)}</span></li>`).join('')}</ul>` : ''}
+    ${rec.length ? `<h2>Последние донаты</h2><ul class="list">${rec.map(r => `<li><span class="n">${esc(r.name)}</span><span class="a money">${money(r.amount)}</span><span class="w">${ago(r.ts)}</span></li>`).join('')}</ul>` : ''}
+    <a class="made" href="../"><span class="tile"><svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="4" width="16" height="3.2" rx=".6"/><rect x="4" y="9.4" width="16" height="3.2" rx=".6"/><rect x="10.4" y="12" width="3.2" height="9" rx=".6"/></svg></span>
+      <div><b>Страница сделана в Alerta</b><span>Бесплатные донаты с Kaspi для твоего стрима</span></div></a>`;
+  const c1 = document.getElementById('cpMain');
+  if (c1) c1.onclick = () => copyText(ph ? ph.copy : cd.copy, c1, ph ? 'Номер скопирован' : 'Карта скопирована');
+  const c2 = document.getElementById('cpCard');
+  if (c2) c2.onclick = () => copyText(cd.copy, null, 'Карта скопирована');
+  const bar = document.getElementById('gBar');
+  if (bar) { if (first) requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = pct + '%'; })); else bar.style.width = pct + '%'; }
+  first = false;
+}
+
+async function load() {
+  if (!slug) { location.replace('../'); return; }
+  try {
+    const r = await fetch(ALERTA.cloud.url + '/rest/v1/rpc/page_get', {
+      method: 'POST', headers: { apikey: ALERTA.cloud.key, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_slug: slug, p_view: first }) });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const d = await r.json();
+    if (!d) { notFound('Такой страницы нет', `Проверь ник в ссылке: «${slug}». Возможно, стример выключил страницу.`); return; }
+    if (first || !document.activeElement || document.activeElement === document.body) render(d);
+  } catch (e) {
+    if (first) notFound('Не получилось загрузить', 'Проверь интернет и обнови страницу.');
+  }
+}
+load();
+setInterval(() => { if (!document.hidden) load(); }, 30000);
+</script>
+</body>
+</html>

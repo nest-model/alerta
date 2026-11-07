@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Alerta — донаты с Kaspi на стриме, бесплатно</title>
+<meta name="description" content="Зритель переводит на твой Kaspi — на стриме алерт с именем, суммой и озвучкой. Топ донатеров, цель, музыка с YouTube. Бесплатно, без комиссий.">
+<meta property="og:title" content="Alerta — донаты с Kaspi на стриме">
+<meta property="og:description" content="Алерты с озвучкой для TikTok Live. Бесплатно, деньги сразу на твой Kaspi.">
+<meta property="og:image" content="assets/promo.jpg">
+<meta name="theme-color" content="#15111c">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+header.top { position: sticky; top: 0; z-index: 20; background: rgba(21,17,28,.82); backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color .2s; }
+header.top.scrolled { border-bottom-color: var(--line); }
+header.top .wrap { display: flex; align-items: center; height: 64px; gap: 20px; }
+header.top nav { display: flex; gap: 22px; margin-left: auto; font-weight: 600; font-size: 14.5px; color: var(--muted); }
+header.top nav a { text-decoration: none; } header.top nav a:hover { color: var(--text); }
+header.top .btn { padding: 10px 16px; font-size: 14px; }
+@media (max-width: 760px) { header.top nav { display: none; } header.top .btn { margin-left: auto; } }
+
+/* ── hero: стрим, на котором появляются настоящие алерты ── */
+.hero { padding: 64px 0 40px; }
+.hero .wrap { display: grid; grid-template-columns: 1fr 1.08fr; gap: 56px; align-items: center; }
+h1 { font: 800 clamp(36px, 5.4vw, 68px)/1.04 var(--display); letter-spacing: -.035em; margin: 0; text-wrap: balance; }
+.lead { font-size: clamp(17px, 1.6vw, 19px); color: #d9d0e2; max-width: 33em; margin: 22px 0 30px; }
+.cta { display: flex; gap: 12px; flex-wrap: wrap; }
+.fine { color: var(--muted); font-size: 14px; margin-top: 16px; }
+
+.stage { position: relative; aspect-ratio: 16 / 10; border-radius: 22px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(80% 70% at 25% 20%, #3a2350 0%, transparent 60%), radial-gradient(70% 60% at 85% 85%, #4a1a1a 0%, transparent 60%), #0e0b13;
+  border: 1px solid var(--line); box-shadow: 0 40px 90px -30px rgba(0,0,0,.8); }
+.stage::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .35;
+  background: repeating-linear-gradient(115deg, transparent 0 46px, rgba(255,255,255,.025) 46px 47px); }
+.live { position: absolute; left: 16px; top: 14px; display: flex; gap: 8px; align-items: center; font: 800 12px/1 var(--body); letter-spacing: .02em; }
+.live b { background: var(--red); color: #fff; padding: 5px 8px; border-radius: 6px; }
+.live span { color: rgba(255,255,255,.7); }
+.slot { position: absolute; inset: 13% 10% 27%; display: grid; place-items: center; }
+.slot img { max-height: 100%; width: auto; opacity: 0; transform: translateY(16px) scale(.86); filter: blur(10px); }
+.slot img.in { animation: alIn .7s cubic-bezier(.2,1.3,.4,1) forwards; }
+.slot img.out { animation: alOut .45s ease-in forwards; }
+@keyframes alIn { to { opacity: 1; transform: none; filter: none; } }
+@keyframes alOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-10px) scale(.95); filter: blur(6px); } }
+.push { position: absolute; left: 16px; bottom: 16px; width: min(300px, 70%); display: flex; gap: 10px; align-items: center;
+  background: rgba(245,240,250,.95); color: #1b1622; border-radius: 16px; padding: 10px 12px; box-shadow: 0 14px 30px rgba(0,0,0,.4);
+  opacity: 0; transform: translateY(18px); transition: opacity .35s, transform .45s cubic-bezier(.2,1.2,.4,1); font-size: 13px; line-height: 1.3; }
+.push.on { opacity: 1; transform: none; }
+.push i { width: 34px; height: 34px; border-radius: 9px; background: #d9d3e0; display: grid; place-items: center; font: 800 17px/1 var(--display); color: #1b1622; flex: none; font-style: normal; }
+.push b { display: block; font-size: 12px; color: #6b6176; font-weight: 700; }
+.caption { position: absolute; right: 16px; bottom: 18px; font-size: 12.5px; color: rgba(255,255,255,.55); font-weight: 600; text-align: right; max-width: 34%; }
+@media (max-width: 920px) { .hero .wrap { grid-template-columns: 1fr; gap: 36px; } .hero { padding-top: 36px; } .caption { display: none; } }
+
+section { padding: 72px 0; }
+h2 { font: 800 clamp(26px, 3.4vw, 40px)/1.12 var(--display); letter-spacing: -.03em; margin: 0 0 14px; text-wrap: balance; }
+.sub { color: var(--muted); max-width: 36em; margin: 0 0 34px; font-size: 17px; }
+
+/* видео */
+.video { border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: #000; aspect-ratio: 16 / 9; }
+.video video { width: 100%; height: 100%; object-fit: cover; }
+
+/* как это работает — настоящая последовательность */
+.flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; counter-reset: f; }
+.flow li { list-style: none; counter-increment: f; border-top: 2px solid var(--line); padding-top: 20px; }
+.flow li::before { content: counter(f); font: 800 15px/1 var(--display); color: var(--red); display: block; margin-bottom: 14px; }
+.flow h3 { font: 800 19px/1.25 var(--body); margin: 0 0 8px; }
+.flow p { margin: 0; color: var(--muted); }
+.flow ol { padding: 0; margin: 0; }
+@media (max-width: 760px) { .flow { grid-template-columns: 1fr; } }
+
+/* лента стилей */
+.styles { display: flex; gap: 18px; overflow-x: auto; padding: 6px 20px 18px; margin: 0 -20px; scroll-snap-type: x mandatory; scrollbar-width: thin; }
+.styles figure { flex: none; margin: 0; width: 300px; height: 210px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line);
+  display: grid; place-items: center; padding: 18px; scroll-snap-align: start; }
+.styles img { max-height: 100%; width: auto; }
+.styles figure.wide { width: 420px; }
+
+/* что внутри */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 64px; }
+.cols h3 { font: 800 15px/1 var(--body); color: var(--muted); margin: 0 0 6px; }
+.feat { list-style: none; padding: 0; margin: 0; }
+.feat li { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.feat b { display: block; font-weight: 800; font-size: 17px; }
+.feat span { color: var(--muted); font-size: 15px; }
+@media (max-width: 760px) { .cols { grid-template-columns: 1fr; } }
+
+/* установка */
+.install { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.steps { padding: 0; margin: 0; list-style: none; counter-reset: s; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 38px 1fr; gap: 14px; padding: 14px 0; }
+.steps li::before { content: counter(s); width: 38px; height: 38px; border-radius: 11px; background: var(--surface2); color: var(--gold); display: grid; place-items: center; font: 800 15px/1 var(--display); }
+.steps b { display: block; } .steps span { color: var(--muted); font-size: 15px; }
+.pc { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 26px; }
+.pc h3 { font: 800 20px/1.2 var(--display); margin: 0 0 10px; letter-spacing: -.02em; }
+.pc p { color: var(--muted); margin: 0 0 20px; }
+@media (max-width: 860px) { .install { grid-template-columns: 1fr; } }
+
+/* вопросы */
+.faq { max-width: 820px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary { cursor: pointer; list-style: none; padding: 20px 40px 20px 0; font-weight: 800; font-size: 17px; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 4px; top: 16px; font: 600 24px/1 var(--display); color: var(--muted); transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq p { margin: 0 0 20px; color: #d3cadc; max-width: 40em; }
+
+.final { text-align: center; padding: 90px 0; }
+.final h2 { margin-bottom: 26px; }
+.final .cta { justify-content: center; }
+footer { border-top: 1px solid var(--line); padding: 30px 0 44px; color: var(--muted); font-size: 14px; }
+footer .wrap { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+footer .r { margin-left: auto; display: flex; gap: 18px; }
+footer a { text-decoration: none; } footer a:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<header class="top" id="top">
+  <div class="wrap">
+    <a class="logo" href="./"><span class="tile"><svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="4" width="16" height="3.2" rx=".6"/><rect x="4" y="9.4" width="16" height="3.2" rx=".6"/><rect x="10.4" y="12" width="3.2" height="9" rx=".6"/></svg></span>Alerta</a>
+    <nav><a href="#how">Как работает</a><a href="#inside">Что внутри</a><a href="#install">Установка</a><a href="#faq">Вопросы</a></nav>
+    <a class="btn btn-red" data-dl="apk" href="#install">Скачать</a>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Донаты с Kaspi прямо на стриме</h1>
+      <p class="lead">Зритель переводит на твой Kaspi, и на стриме сразу алерт с именем, суммой и озвучкой сообщения. Бесплатно и без комиссий: деньги приходят прямо тебе.</p>
+      <div class="cta">
+        <a class="btn btn-red" data-dl="apk" href="#install"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Скачать для Android</a>
+        <a class="btn btn-ghost" data-dl="exe" href="#install">Программа для Windows</a>
+      </div>
+      <p class="fine">Для Android 7 и новее. Работает с TikTok Live Studio.</p>
+    </div>
+    <div class="stage" aria-label="Так донат выглядит на стриме">
+      <div class="live"><b>LIVE</b><span>твой стрим</span></div>
+      <div class="slot" id="slot"></div>
+      <div class="push" id="push"><i>₸</i><div><b>Перевод</b><span id="pushTx">Айгерім Т. перевела вам 3 000 ₸</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:24px">
+  <div class="wrap">
+    <div class="video"><video src="assets/promo.mp4" poster="assets/promo.jpg" controls playsinline preload="none"></video></div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>Как это работает</h2>
+    <p class="sub">Никаких платёжных сервисов посередине. Alerta живёт на твоём телефоне рядом с Kaspi.</p>
+    <ol class="flow">
+      <li><h3>Зритель переводит на твой Kaspi</h3><p>Обычный перевод по номеру. В сообщении пишет имя и текст, который хочет услышать на стриме.</p></li>
+      <li><h3>Alerta видит уведомление</h3><p>Приложение на телефоне замечает пуш о переводе и достаёт из него имя, сумму и сообщение.</p></li>
+      <li><h3>На стриме появляется алерт</h3><p>С анимацией, звуком и озвучкой. Обновляются топ донатеров и полоса цели.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>Выглядит как надо</h2>
+    <p class="sub">12 стилей алертов, 20 вариантов полосы цели, плееры для музыки. Ставь свои картинки, гифки и звуки.</p>
+    <div class="styles" tabindex="0" aria-label="Стили виджетов">
+      <figure><img src="assets/styles/al_gold.webp" alt="Золотой алерт" loading="lazy"></figure>
+      <figure><img src="assets/styles/al_neon.webp" alt="Неоновый алерт" loading="lazy"></figure>
+      <figure><img src="assets/styles/al_comic.webp" alt="Алерт в стиле комикса" loading="lazy"></figure>
+      <figure><img src="assets/styles/al_iphone.webp" alt="Алерт в стиле iPhone" loading="lazy"></figure>
+      <figure><img src="assets/styles/al_gaming.webp" alt="Игровой алерт" loading="lazy"></figure>
+      <figure><img src="assets/styles/al_pixel.webp" alt="Пиксельный алерт" loading="lazy"></figure>
+      <figure class="wide"><img src="assets/styles/goal_bar-neon.webp" alt="Полоса цели" loading="lazy"></figure>
+      <figure class="wide"><img src="assets/styles/mus_mbar-gold.webp" alt="Плеер музыки" loading="lazy"></figure>
+      <figure><img src="assets/styles/al_glass.webp" alt="Стеклянный алерт" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<section id="inside">
+  <div class="wrap">
+    <h2>Что внутри</h2>
+    <p class="sub">Всё бесплатно. Нет платных функций и подписок.</p>
+    <div class="cols">
+      <div>
+        <h3>На стриме</h3>
+        <ul class="feat">
+          <li><b>Алерты с озвучкой</b><span>Разные голоса и звуки для разных сумм.</span></li>
+          <li><b>Топ донатеров</b><span>За стрим, за день или за всё время.</span></li>
+          <li><b>Цель сбора</b><span>«На вебку», «на новый микро» — полоса заполняется сама.</span></li>
+          <li><b>Музыка с YouTube</b><span>Зритель кидает ссылку в сообщении, трек играет после алерта.</span></li>
+          <li><b>Плашка с реквизитами</b><span>Номер Kaspi на экране, чтобы зрители знали, куда переводить.</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Для тебя</h3>
+        <ul class="feat">
+          <li><b>Страница доната</b><span>Ссылка для профиля TikTok: номер, цель и топ донатеров.</span></li>
+          <li><b>Настройка с телефона или ПК</b><span>Панель открывается в браузере на компьютере.</span></li>
+          <li><b>Фильтр слов</b><span>Запрещённые слова не попадут в озвучку.</span></li>
+          <li><b>Бэкап настроек</b><span>Все стили, звуки и картинки одним файлом.</span></li>
+          <li><b>Поддержка в приложении</b><span>Пишешь вопрос, ответ приходит уведомлением.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap install">
+    <div>
+      <h2>Установка за 5 минут</h2>
+      <ol class="steps">
+        <li><div><b>Скачай Alerta на телефон с Kaspi</b><span>Android спросит разрешение на установку из браузера: это нормально для приложений не из Google Play.</span></div></li>
+        <li><div><b>Дай доступ к уведомлениям</b><span>Так Alerta увидит переводы. Приложение само откроет нужный экран.</span></div></li>
+        <li><div><b>Отключи экономию батареи для Alerta</b><span>Иначе телефон может закрыть её посреди стрима.</span></div></li>
+        <li><div><b>Добавь ссылку в TikTok Live Studio</b><span>Скопируй в приложении ссылку «Алерты» и добавь её источником «Ссылка». Телефон и ПК должны быть в одной Wi-Fi сети.</span></div></li>
+        <li><div><b>Отправь тестовый донат</b><span>Кнопка на главной в приложении. Алерт появится на стриме.</span></div></li>
+      </ol>
+      <div class="cta" style="margin-top:24px"><a class="btn btn-red" data-dl="apk" href="#">Скачать для Android</a></div>
+      <p class="fine" id="verA"></p>
+    </div>
+    <div class="pc">
+      <h3>Программа для Windows</h3>
+      <p>Не обязательна. Даёт ссылки для Live Studio, которые не ломаются, если у телефона сменился адрес в Wi-Fi, и предупреждает, если телефон отвалился во время стрима. Внутри та же панель, что и на телефоне.</p>
+      <a class="btn btn-ghost" data-dl="exe" href="#">Скачать для Windows</a>
+      <p class="fine" id="verW" style="margin-bottom:0"></p>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap faq">
+    <h2>Вопросы</h2>
+    <details><summary>Это правда бесплатно?</summary><p>Да. Без подписок и без процента с донатов. Alerta не берёт ничего ни с тебя, ни со зрителей.</p></details>
+    <details><summary>Деньги проходят через Alerta?</summary><p>Нет. Зритель переводит прямо на твой Kaspi. Alerta только видит уведомление о переводе на твоём телефоне и показывает алерт. К деньгам у неё доступа нет.</p></details>
+    <details><summary>Работает на iPhone?</summary><p>Да. С iPhone Alerta тоже подключается, просто способ чуть отличается от Android. Напиши в <a href="https://t.me/lyohacray" rel="noopener">Telegram</a> — скину инструкцию и помогу настроить.</p></details>
+    <details><summary>Нужно ли что-то ставить на компьютер?</summary><p>Нет. Ссылки на алерты добавляются в TikTok Live Studio как источник «Ссылка». Программа для Windows — по желанию, если хочешь, чтобы ссылки не ломались при смене Wi-Fi.</p></details>
+    <details><summary>Какие уведомления видит Alerta?</summary><p>Android даёт доступ к уведомлениям целиком, но Alerta разбирает только уведомления Kaspi о переводах. История донатов хранится у тебя на телефоне.</p></details>
+    <details><summary>Что если тролль напишет гадость в сообщении?</summary><p>Добавь слова в фильтр в настройках: они не попадут ни в текст на экране, ни в озвучку. Алерт можно пропустить одной кнопкой.</p></details>
+    <details><summary>Alerta — это приложение Kaspi?</summary><p>Нет. Alerta — независимый проект и не связана с АО «Kaspi Bank».</p></details>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Поставь сегодня, включи на ближайшем стриме</h2>
+    <div class="cta"><a class="btn btn-red" data-dl="apk" href="#">Скачать для Android</a><a class="btn btn-ghost" data-dl="exe" href="#">Для Windows</a></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="./" style="font-size:16px"><span class="tile" style="width:28px;height:28px;border-radius:8px"><svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="4" width="16" height="3.2" rx=".6"/><rect x="4" y="9.4" width="16" height="3.2" rx=".6"/><rect x="10.4" y="12" width="3.2" height="9" rx=".6"/></svg></span>Alerta</a>
+    <span>Независимый проект, не связан с АО «Kaspi Bank».</span>
+    <div class="r"><a href="https://t.me/lyohacray" rel="noopener">Telegram</a><a href="#install">Скачать</a></div>
+  </div>
+</footer>
+
+<script src="assets/config.js"></script>
+<script>
+/* ссылки на скачивание и версии */
+document.querySelectorAll('[data-dl]').forEach(a => { const u = ALERTA.download[a.dataset.dl]; if (u) a.href = u; });
+document.getElementById('verA').textContent = `Версия ${ALERTA.android.version}, около ${ALERTA.android.size}.`;
+document.getElementById('verW').textContent = `Версия ${ALERTA.windows.version} для Windows 10 и 11, около ${ALERTA.windows.size}.`;
+addEventListener('scroll', () => document.getElementById('top').classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+/* hero: пуш на телефоне → алерт на стриме */
+const SHOW = [
+  ['al_gold', 'Айгерім Т. перевела вам 3 000 ₸'], ['al_neon', 'Dias_kz перевёл вам 5 000 ₸'],
+  ['al_comic', 'Марат Е. перевёл вам 1 000 ₸'], ['al_iphone', 'Асель К. перевела вам 2 000 ₸'],
+  ['al_gaming', 'Mira перевела вам 7 000 ₸'], ['al_card', 'Әлихан перевёл вам 15 000 ₸'],
+];
+const slot = document.getElementById('slot'), push = document.getElementById('push'), pushTx = document.getElementById('pushTx');
+const imgs = SHOW.map(([n]) => { const i = new Image(); i.src = `assets/styles/${n}.webp`; i.alt = 'Алерт на стриме'; return i; });
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let k = 0;
+function cycle() {
+  const img = imgs[k % imgs.length];
+  pushTx.textContent = SHOW[k % SHOW.length][1];
+  push.classList.add('on');
+  setTimeout(() => {
+    slot.replaceChildren(img); img.className = 'in';
+    setTimeout(() => push.classList.remove('on'), 900);
+  }, 750);
+  setTimeout(() => { img.className = 'out'; }, 3900);
+  setTimeout(() => { k++; cycle(); }, 4500);
+}
+if (still) { imgs[0].style.opacity = 1; imgs[0].style.transform = 'none'; imgs[0].style.filter = 'none'; slot.append(imgs[0]); push.classList.add('on'); }
+else setTimeout(cycle, 500);
+</script>
+</body>
+</html>

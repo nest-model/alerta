@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>Alerta · DonationAlerts</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0f0f12;color:#f3f3f5;font:16px/1.5 system-ui,sans-serif;padding:24px;box-sizing:border-box}
+.c{max-width:420px;text-align:center}h1{font-size:22px;margin:0 0 8px}p{color:#a5a5ad;margin:0}
+</style></head><body><div class="c"><h1 id="t">Возвращаю в Alerta…</h1><p id="p">Секунду.</p></div>
+<script>
+/* DonationAlerts вернул сюда code — отдаём его приложению Alerta (адрес панели в state) */
+(function () {
+  var q = new URLSearchParams(location.search);
+  var state = q.get('state') || '';
+  var i = state.indexOf('|');
+  var origin = i >= 0 ? state.slice(i + 1) : 'http://127.0.0.1:4747';
+  // только адрес в своей сети — никуда больше не отправляем
+  var ok = /^http:\/\/(127\.0\.0\.1|localhost|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$/.test(origin);
+  if (!ok) {
+    document.getElementById('t').textContent = 'Не получилось';
+    document.getElementById('p').textContent = 'Открой панель Alerta и нажми «Подключить DonationAlerts» ещё раз.';
+    return;
+  }
+  var out = new URLSearchParams();
+  ['code', 'state', 'error'].forEach(function (k) { if (q.get(k)) out.set(k, q.get(k)); });
+  location.replace(origin + '/da?' + out.toString());
+})();
+</script></body></html>
