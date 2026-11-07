@@ -6,5 +6,5 @@ window.ALERTA = {
     exe: 'download/Alerta-Setup.exe',
   },
   android: { version: '3.2', size: '1 МБ' },
-  windows: { version: '1.0.4', size: '90 МБ' },
+  windows: { version: '1.1.0', size: '90 МБ' },
 };

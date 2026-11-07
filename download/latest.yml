@@ -1,8 +1,8 @@
-version: 1.0.4
+version: 1.1.0
 files:
   - url: Alerta-Setup.exe
-    sha512: lpTJV69QpJhbI/Q4zqcdXV4yw0quYncCZVsZucgh+kV0X64vrPfO8Wubna0G4YiY2eXBmuIRPF3tBAgIupgEQQ==
-    size: 93888202
+    sha512: miiNAeU6LRVO5f0fhg5Mx5WtHAl4WjfvA4iVCiPKtcvIz7vY9m/O2YEU8iS5pLSH2E0U2G2v9siXRuZX2vK15A==
+    size: 94607162
 path: Alerta-Setup.exe
-sha512: lpTJV69QpJhbI/Q4zqcdXV4yw0quYncCZVsZucgh+kV0X64vrPfO8Wubna0G4YiY2eXBmuIRPF3tBAgIupgEQQ==
-releaseDate: '2026-11-07T19:48:02.982Z'
+sha512: miiNAeU6LRVO5f0fhg5Mx5WtHAl4WjfvA4iVCiPKtcvIz7vY9m/O2YEU8iS5pLSH2E0U2G2v9siXRuZX2vK15A==
+releaseDate: '2026-11-07T20:19:45.188Z'
