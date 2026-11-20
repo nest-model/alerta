@@ -71,12 +71,12 @@ function render() {
     <div class="err" id="rerr"></div>`;
   $('rb').onclick = async () => {
     $('rerr').textContent = '';
-    try { me = await call('new-streamer', { ingest_token: $('rt').value.trim() }); localStorage.setItem(LS, JSON.stringify(me)); render(); }
+    try { me = await call('dynamic-function', { ingest_token: $('rt').value.trim() }); localStorage.setItem(LS, JSON.stringify(me)); render(); }
     catch (e) { $('rerr').textContent = e.message === 'not_found' ? 'Такого токена нет' : e.message === 'bad_token' ? 'Токен выглядит неправильно' : e.message; }
   };
 }
 (async () => {
-  try { if (!me) { me = await call('new-streamer'); localStorage.setItem(LS, JSON.stringify(me)); } render(); }
+  try { if (!me) { me = await call('dynamic-function'); localStorage.setItem(LS, JSON.stringify(me)); } render(); }
   catch (e) { $('mine').innerHTML = `<div class="err">Не получилось создать токен: ${esc(e.message)}. Обнови страницу.</div>`; }
 })();
 
