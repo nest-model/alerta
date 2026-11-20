@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>Alerta · оверлей</title>
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<style>
+html,body{margin:0;height:100%;background:transparent;overflow:hidden;font-family:"Manrope",system-ui,sans-serif}
+#stage{position:fixed;left:0;right:0;top:10vh;display:flex;justify-content:center;padding:0 3vw}
+.card{min-width:420px;max-width:90vw;padding:26px 36px 24px;border-radius:30px;text-align:center;color:#fff;background:rgba(14,14,20,.94);border:3px solid var(--c);
+ box-shadow:0 0 60px -6px var(--c),0 20px 60px rgba(0,0,0,.5);animation:in .6s cubic-bezier(.2,1.4,.4,1) both}
+.card.out{animation:out .45s ease-in both}
+.emo{font-size:68px;line-height:1;margin-top:-64px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5))}
+.who{font-weight:800;font-size:30px;margin-top:8px}.who span{font-weight:600;opacity:.7}
+.amt{font-weight:800;font-size:64px;letter-spacing:-.02em;background:linear-gradient(180deg,#fff,var(--c));-webkit-background-clip:text;background-clip:text;color:transparent}
+.msg{margin-top:10px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12);font-weight:700;font-size:26px;overflow-wrap:anywhere}
+@keyframes in{from{opacity:0;transform:translateY(-40px) scale(.8);filter:blur(8px)}}
+@keyframes out{to{opacity:0;transform:translateY(-30px) scale(.92);filter:blur(6px)}}
+#dbg{position:fixed;left:8px;bottom:8px;color:#9aa;font:12px system-ui;background:rgba(0,0,0,.6);padding:4px 8px;border-radius:6px;display:none}
+</style></head><body>
+<div id="stage"></div><div id="dbg"></div>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+const SUPA = 'https://mutxeactljgbuygzfhim.supabase.co';
+const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11dHhlYWN0bGpnYnV5Z3pmaGltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQwMTA1NDksImV4cCI6MjEwOTU4NjU0OX0.lwSM8bbJglO5mdsZYJjrOKLaIfj6aPnVdN2H1uECnjQ';
+const q = new URLSearchParams(location.search), K = q.get('k') || '', DEBUG = q.has('debug');
+const $ = id => document.getElementById(id), sleep = ms => new Promise(r => setTimeout(r, ms));
+const dbg = t => { if (DEBUG) { $('dbg').style.display = 'block'; $('dbg').textContent = t; } };
+const TIERS = [{ min: 5000, e: '👑', c: '#f5c542', d: 11 }, { min: 1000, e: '🔥', c: '#ff8a3d', d: 8 }, { min: 0, e: '💸', c: '#22d3ee', d: 6 }];
+const BAD = /(?<![a-zа-яё])(хуй|хуе|хуё|пизд|ебат|ебан|ёбан|блядь|бля|сука|сучк|мудак|залуп|пидор|пидр)[а-яё]*/giu;
+const clean = (s, n) => String(s || '').replace(/https?:\/\/\S+|www\.\S+/gi, 'ссылка').replace(BAD, '***').replace(/(.)\1{3,}/gu, '$1$1$1').slice(0, n).trim();
+const fmt = n => Number(n).toLocaleString('ru-RU').replace(/\u00a0/g, ' ');
+
+let ac = null;
+function chime() { try { ac = ac || new AudioContext(); ac.resume(); [880, 1318].forEach((f, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; o.type = 'sine';
+  g.gain.setValueAtTime(0, ac.currentTime + i * .12); g.gain.linearRampToValueAtTime(.25, ac.currentTime + i * .12 + .02); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + i * .12 + .6);
+  o.connect(g).connect(ac.destination); o.start(ac.currentTime + i * .12); o.stop(ac.currentTime + i * .12 + .7); }); } catch (_) {} }
+function say(text) {
+  return new Promise(res => {
+    const ss = window.speechSynthesis; if (!ss) return res();
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'ru-RU'; u.rate = 1.02;
+    const v = ss.getVoices().find(x => /^ru/i.test(x.lang)); if (v) u.voice = v;
+    const done = () => res(); u.onend = done; u.onerror = done; setTimeout(done, 20000);
+    ss.cancel(); ss.speak(u);
+  });
+}
+
+const queue = [], seen = new Set(); let busy = false;
+function enqueue(p) { if (!p || seen.has(p.id)) return; seen.add(p.id); queue.push(p); if (!busy) run(); }
+async function run() { busy = true; while (queue.length) { try { await show(queue.shift()); } catch (e) { console.error(e); } } busy = false; }
+async function show(p) {
+  const t = TIERS.find(x => p.amount >= x.min), name = clean(p.name, 40) || 'Аноним', msg = clean(p.message, 140);
+  const el = document.createElement('div'); el.className = 'card'; el.style.setProperty('--c', t.c);
+  el.innerHTML = '<div class="emo"></div><div class="who"><b></b> <span>задонатил(а)</span></div><div class="amt"></div>' + (msg ? '<div class="msg"></div>' : '');
+  el.querySelector('.emo').textContent = t.e;
+  el.querySelector('.who b').textContent = name;
+  el.querySelector('.amt').textContent = '+' + fmt(p.amount) + ' ₸';
+  if (msg) el.querySelector('.msg').textContent = msg;
+  $('stage').replaceChildren(el); chime();
+  const spoken = `${name} задонатил ${p.amount} тенге` + (msg ? ` и пишет: ${msg}` : '');
+  await Promise.all([sleep(t.d * 1000), say(spoken)]);
+  el.classList.add('out'); await sleep(500); el.remove();
+}
+
+// пришёл только id: текст запрашиваем у сервера, он отдаст его лишь для нашего ключа
+async function onSignal(m) {
+  const id = m && m.payload && m.payload.id; if (!id || seen.has(id)) return;
+  dbg('донат получен, загружаю…');
+  try {
+    const r = await fetch(`${SUPA}/functions/v1/overlay-donation`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ k: K, id }) });
+    if (!r.ok) return dbg('не удалось загрузить донат: ' + r.status);
+    enqueue(await r.json()); dbg('канал: SUBSCRIBED');
+  } catch (e) { dbg('ошибка: ' + e.message); }
+}
+
+if (!/^[0-9a-f]{24}$/.test(K)) dbg('нет ключа в ссылке (?k=…)');
+else {
+  const sb = createClient(SUPA, ANON);
+  sb.channel('overlay:' + K).on('broadcast', { event: 'donation' }, onSignal).subscribe(s => dbg('канал: ' + s));
+}
+if (DEBUG) addEventListener('click', () => { chime(); dbg('звук включён'); });
+</script></body></html>

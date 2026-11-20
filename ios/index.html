@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Alerta для iPhone</title>
+<link rel="icon" href="../assets/icon.svg"><link rel="stylesheet" href="../assets/site.css">
+<style>
+.page{width:min(640px,100% - 32px);margin:0 auto;padding:28px 0 60px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px;margin-top:16px}
+h1{font:800 clamp(26px,6vw,34px)/1.1 var(--display);margin:18px 0 8px;letter-spacing:-.03em}
+h2{font:800 16px/1.2 var(--display);margin:0 0 12px}
+.lbl{color:var(--muted);font-weight:700;font-size:13px;margin-bottom:6px}
+.val{display:flex;gap:8px}.val input{flex:1;min-width:0;background:var(--night);border:1px solid var(--line);border-radius:12px;color:var(--text);padding:13px;font:600 14px ui-monospace,Consolas,monospace}
+.warn{margin-top:10px;padding:12px 14px;border-radius:12px;background:rgba(245,197,66,.1);border:1px solid rgba(245,197,66,.35);font-size:14px}
+ol{padding-left:20px;margin:0;line-height:1.7} li{margin-bottom:8px} code{background:var(--night);padding:2px 6px;border-radius:6px;font-size:13px;overflow-wrap:anywhere}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.err{color:#ff7b70;font-size:14px;margin-top:8px;min-height:18px}
+.small{color:var(--muted);font-size:13px;margin-top:10px}
+</style></head><body>
+<div class="page">
+  <a class="logo" href="../"><span class="tile"><svg viewBox="0 0 24 24" fill="#fff"><rect x="4" y="4" width="16" height="3.2" rx=".6"/><rect x="4" y="9.4" width="16" height="3.2" rx=".6"/><rect x="10.4" y="12" width="3.2" height="9" rx=".6"/></svg></span>Alerta</a>
+  <h1>Alerta для iPhone</h1>
+  <div style="color:var(--muted)">Донаты Kaspi на стриме без Android и без компьютерной программы. Нужен iPhone с iOS 27 или новее.</div>
+
+  <div class="card" id="mine"><div class="small">Создаю твой токен…</div></div>
+
+  <div class="card">
+    <h2>Подключение за 5 минут</h2>
+    <ol>
+      <li>Открой «Быстрые команды» → «+» → новая команда <b>Alerta</b> (или нажми «Добавить готовую команду», если кнопка есть ниже).</li>
+      <li>Действие <b>«Получить содержимое URL»</b>. URL: адрес из блока выше. Метод <b>POST</b>, тело запроса <b>JSON</b>, два поля: <code>token</code> (текст, твой токен) и <code>text</code> (переменная «Входные данные команд»).</li>
+      <li>Вкладка «Автоматизация» → «+» → <b>Уведомление</b> → приложение <b>Kaspi.kz</b> → «Далее» → «Выполнить быструю команду» → <b>Alerta</b>.</li>
+      <li>Включи <b>«Выполнять сразу»</b>, выключи «Уведомлять при запуске».</li>
+      <li>Когда iOS спросит разрешение отправить данные на <code>mutxeactljgbuygzfhim.supabase.co</code>, нажми «Всегда разрешать».</li>
+      <li>Настройки → Уведомления → <b>Kaspi.kz</b>: разреши уведомления и показ на заблокированном экране. Без этого автоматизация не срабатывает.</li>
+      <li>Ссылку оверлея добавь в TikTok Live Studio источником «Ссылка», включи звук.</li>
+    </ol>
+    <div class="row" id="scRow" style="display:none"><a class="btn btn-red" id="sc" href="#">Добавить готовую команду</a></div>
+    <div class="row"><button class="btn btn-ghost" id="test">Отправить тестовый донат</button></div>
+    <div class="err" id="testRes"></div>
+    <div class="small">Имена и сообщения донатов хранятся на сервере Alerta 30 дней. Алерты приходят, только пока открыт оверлей.</div>
+  </div>
+</div>
+
+<script>
+const FN = 'https://mutxeactljgbuygzfhim.supabase.co/functions/v1';
+const SHORTCUT_URL = '';   // вставь iCloud-ссылку на команду, кнопка появится сама
+const LS = 'alerta_ios';
+const $ = id => document.getElementById(id);
+const call = (fn, body) => fetch(`${FN}/${fn}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) })
+  .then(async r => { const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.message || j.error || 'ошибка ' + r.status); return j; });
+const ovl = k => new URL('../o/?k=' + k, location.href).href;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let me = null; try { me = JSON.parse(localStorage.getItem(LS) || 'null'); } catch (_) {}
+
+window.copy = (id, b) => {
+  const el = $(id); el.select(); el.setSelectionRange(0, 99999);
+  (navigator.clipboard ? navigator.clipboard.writeText(el.value) : Promise.reject()).catch(() => document.execCommand('copy'));
+  const o = b.textContent; b.textContent = 'Скопировано'; setTimeout(() => b.textContent = o, 1500);
+};
+
+function render() {
+  $('mine').innerHTML = `
+    <h2>Твои данные</h2>
+    <div class="lbl">Секретный токен (вставляется в команду на iPhone)</div>
+    <div class="val"><input id="t1" readonly value="${esc(me.ingest_token)}"><button class="btn btn-red" onclick="copy('t1',this)">Копировать</button></div>
+    <div class="warn"><b>Сохрани токен в заметки.</b> Если потеряешь, восстановить его нельзя. Не показывай токен никому: с ним можно слать алерты на твой стрим. Открывай эту страницу на том же устройстве, иначе получишь новый токен.</div>
+    <div class="lbl" style="margin-top:16px">Адрес для команды</div>
+    <div class="val"><input id="t2" readonly value="${FN}/smart-worker"><button class="btn btn-ghost" onclick="copy('t2',this)">Копировать</button></div>
+    <div class="lbl" style="margin-top:16px">Ссылка оверлея для TikTok Live Studio</div>
+    <div class="val"><input id="t3" readonly value="${esc(ovl(me.overlay_key))}"><button class="btn btn-ghost" onclick="copy('t3',this)">Копировать</button></div>
+    <div class="lbl" style="margin-top:16px">Уже есть токен? Восстановить</div>
+    <div class="val"><input id="rt" placeholder="ak_…"><button class="btn btn-ghost" id="rb">Восстановить</button></div>
+    <div class="err" id="rerr"></div>`;
+  $('rb').onclick = async () => {
+    $('rerr').textContent = '';
+    try { me = await call('new-streamer', { ingest_token: $('rt').value.trim() }); localStorage.setItem(LS, JSON.stringify(me)); render(); }
+    catch (e) { $('rerr').textContent = e.message === 'not_found' ? 'Такого токена нет' : e.message === 'bad_token' ? 'Токен выглядит неправильно' : e.message; }
+  };
+}
+(async () => {
+  try { if (!me) { me = await call('new-streamer'); localStorage.setItem(LS, JSON.stringify(me)); } render(); }
+  catch (e) { $('mine').innerHTML = `<div class="err">Не получилось создать токен: ${esc(e.message)}. Обнови страницу.</div>`; }
+})();
+
+$('test').onclick = async () => {
+  if (!me) return;
+  $('testRes').style.color = ''; $('testRes').textContent = 'Отправляю…';
+  try {
+    const amt = 1000 + Math.floor(Math.random() * 900);
+    const r = await call('smart-worker', { token: me.ingest_token, text: `Kaspi Gold Пополнение: ${amt} ₸ Тест Т.` });
+    $('testRes').textContent = r.skipped ? 'Пропущено: ' + r.skipped
+      : r.overlay ? 'Отправлено. Алерт должен появиться в оверлее.' : 'Донат записан, но оверлей его не получил. Проверь Realtime в Supabase.';
+  } catch (e) { $('testRes').style.color = '#ff7b70'; $('testRes').textContent = 'Ошибка: ' + e.message; }
+};
+if (SHORTCUT_URL) { $('sc').href = SHORTCUT_URL; $('scRow').style.display = 'flex'; }
+</script></body></html>
